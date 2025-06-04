@@ -6,16 +6,18 @@ import ParticlesBackground from './ParticlesBackground';
 // Enhanced Hero Section with custom gradients
 function HeroSection() {
   const [ref, isInView] = useInView();
-  const [text, setText] = useState('');
-  const fullText = "Hi, I'm Muhammad Usama";
+  const [typedName, setTypedName] = useState('');
+  const namePart = "Hi, I'm ";
+  const fullTitle = namePart + "Muhammad Usama";
+  const subtitle = "Software Engineer";
 
   useEffect(() => {
     if (isInView) {
       let index = 0;
       const timer = setInterval(() => {
-        setText(fullText.slice(0, index));
+        setTypedName(namePart.slice(0, index));
         index++;
-        if (index > fullText.length) clearInterval(timer);
+        if (index > namePart.length) clearInterval(timer);
       }, 100);
       return () => clearInterval(timer);
     }
@@ -48,15 +50,16 @@ function HeroSection() {
             <span className="text-xs sm:text-sm font-medium text-white">Available for opportunities</span>
           </div>
 
-          {/* Main Heading */}
-          <div className={`space-y-3 sm:space-y-4 ${isInView ? 'animate-fade-in' : 'opacity-0'}`}>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
-              {text}
+          {/* Main Title Area */}
+          <div className={`space-y-4 ${isInView ? 'animate-fade-in' : 'opacity-0'}`}>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight mb-4 bg-clip-text text-transparent">
+              {typedName} <span className="bg-gradient-to-r from-[#517fa4] to-[#6a8fb5] bg-clip-text text-transparent">Muhammad Usama</span>
               <span className="inline-block w-0.5 sm:w-1 h-8 sm:h-12 bg-primary-500 ml-1 sm:ml-2 animate-pulse"></span>
             </h1>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary-300 leading-tight">
-              Software Engineer
-            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-[#517fa4] to-[#6a8fb5] mx-auto rounded-full mb-6"></div>
+            <p className="text-base sm:text-lg text-secondary-300 max-w-3xl mx-auto">
+              {subtitle}
+            </p>
           </div>
           
           {/* Description */}

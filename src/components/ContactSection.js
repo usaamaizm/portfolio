@@ -115,8 +115,8 @@ function ContactSection() {
           <div className={`transition-all duration-150 ${
             isInView ? 'translate-x-0 opacity-100' : 'translate-x-5 opacity-0'
           }`}>
-            <div className="h-full flex flex-col card-gradient backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-[#517fa4]/30">
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <div className="h-full flex flex-col bg-secondary-800/60 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-2xl border border-primary-700/50">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-3">
                 <Send className="text-[#6a8fb5]" size={28} />
                 Quick Message
               </h3>
@@ -124,7 +124,7 @@ function ContactSection() {
               <form onSubmit={handleSubmit} className="space-y-4 flex-1 flex flex-col">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="group">
-                    <label className="block text-gray-200 font-medium mb-2 group-focus-within:text-[#517fa4] transition-colors duration-150 text-sm">
+                    <label className="block text-secondary-300 font-medium mb-2 group-focus-within:text-primary-300 transition-colors duration-150 text-sm">
                       Name
                     </label>
                     <input
@@ -133,12 +133,12 @@ function ContactSection() {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2.5 border border-[#517fa4]/30 rounded-xl focus:ring-2 focus:ring-[#517fa4]/20 focus:border-[#517fa4] bg-[#243949]/20 text-white transition-all duration-150 placeholder-gray-400 text-sm backdrop-blur-sm"
+                      className="w-full px-3 py-2.5 border border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-secondary-800/50 text-white transition-all duration-300 placeholder-secondary-400 text-sm backdrop-blur-sm"
                       placeholder="Your name"
                     />
                   </div>
                   <div className="group">
-                    <label className="block text-gray-200 font-medium mb-2 group-focus-within:text-[#517fa4] transition-colors duration-150 text-sm">
+                    <label className="block text-secondary-300 font-medium mb-2 group-focus-within:text-primary-300 transition-colors duration-150 text-sm">
                       Email
                     </label>
                     <input
@@ -147,14 +147,14 @@ function ContactSection() {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2.5 border border-[#517fa4]/30 rounded-xl focus:ring-2 focus:ring-[#517fa4]/20 focus:border-[#517fa4] bg-[#243949]/20 text-white transition-all duration-150 placeholder-gray-400 text-sm backdrop-blur-sm"
+                      className="w-full px-3 py-2.5 border border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-secondary-800/50 text-white transition-all duration-300 placeholder-secondary-400 text-sm backdrop-blur-sm"
                       placeholder="your@email.com"
                     />
                   </div>
                 </div>
                 
                 <div className="group">
-                  <label className="block text-gray-200 font-medium mb-2 group-focus-within:text-[#517fa4] transition-colors duration-150 text-sm">
+                  <label className="block text-secondary-300 font-medium mb-2 group-focus-within:text-primary-300 transition-colors duration-150 text-sm">
                     Subject
                   </label>
                   <input
@@ -163,13 +163,13 @@ function ContactSection() {
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2.5 border border-[#517fa4]/30 rounded-xl focus:ring-2 focus:ring-[#517fa4]/20 focus:border-[#517fa4] bg-[#243949]/20 text-white transition-all duration-150 placeholder-gray-400 text-sm backdrop-blur-sm"
+                    className="w-full px-3 py-2.5 border border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-secondary-800/50 text-white transition-all duration-300 placeholder-secondary-400 text-sm backdrop-blur-sm"
                     placeholder="Project collaboration, job opportunity..."
                   />
                 </div>
                 
                 <div className="group flex-1 flex flex-col">
-                  <label className="block text-gray-200 font-medium mb-2 group-focus-within:text-[#517fa4] transition-colors duration-150 text-sm">
+                  <label className="block text-secondary-300 font-medium mb-2 group-focus-within:text-primary-300 transition-colors duration-150 text-sm">
                     Message
                   </label>
                   <textarea
@@ -178,7 +178,7 @@ function ContactSection() {
                     onChange={handleInputChange}
                     rows={4}
                     required
-                    className="w-full px-3 py-2.5 border border-[#517fa4]/30 rounded-xl focus:ring-2 focus:ring-[#517fa4]/20 focus:border-[#517fa4] bg-[#243949]/20 text-white transition-all duration-150 resize-none placeholder-gray-400 text-sm flex-1 backdrop-blur-sm"
+                    className="w-full px-3 py-2.5 border border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 bg-secondary-800/50 text-white transition-all duration-300 resize-none flex-1 placeholder-secondary-400 text-sm backdrop-blur-sm"
                     placeholder="Tell me about your project..."
                   ></textarea>
                 </div>

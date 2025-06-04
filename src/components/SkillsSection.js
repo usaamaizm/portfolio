@@ -61,7 +61,7 @@ function SkillsSection() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4">
             Skills & <span className="text-primary-300">Technologies</span>
           </h2>
-          <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full mb-6 animate-pulse"></div>
+          <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full mb-6"></div>
           <p className="text-base sm:text-lg text-secondary-300 max-w-3xl mx-auto">
             Technologies and tools I work with
           </p>

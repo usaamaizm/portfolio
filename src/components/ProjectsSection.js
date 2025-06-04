@@ -4,64 +4,61 @@ import { useInView } from '../hooks';
 
 function GlassCard({ icon, title, type, status, statusColor, description, stats, features, technologies }) {
   return (
-    <div className="group relative card-gradient backdrop-blur-xl rounded-3xl shadow-2xl border border-[#517fa4]/30 transition-all duration-150 hover:scale-105 hover:shadow-3xl hover:border-[#517fa4]/50 hover:-rotate-1 p-8 flex flex-col">
-      {/* Gradient top border */}
-      <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-[#517fa4] via-[#6a8fb5] to-[#517fa4] rounded-t-3xl blur-sm opacity-80"></div>
-      
+    <div className="group relative bg-secondary-800/50 backdrop-blur-xl rounded-xl sm:rounded-3xl shadow-xl border border-primary-700/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl p-6 sm:p-8 flex flex-col">
       {/* Status badge */}
-      <div className="absolute top-6 right-6 flex items-center gap-2">
-        <span className={`px-4 py-1 rounded-full text-xs font-bold text-white ${statusColor} shadow-lg`}>
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 z-10">
+        <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColor} shadow-md`}>
           {status}
         </span>
       </div>
       
       {/* Icon */}
-      <div className="mb-6 flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#517fa4]/60 to-[#243949]/60 backdrop-blur-sm border border-[#517fa4]/40 flex items-center justify-center shadow-lg group-hover:shadow-[#517fa4]/30 transition-all duration-150">
+      <div className="mb-4 sm:mb-6 flex items-center justify-center">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary-600/80 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
           {icon}
         </div>
       </div>
       
       {/* Title & Type */}
-      <div className="mb-2 text-center">
-        <span className="text-xs font-semibold uppercase tracking-wider text-[#6a8fb5]">{type}</span>
-        <h3 className="text-2xl font-bold text-white mt-1 mb-2 flex items-center justify-center gap-2">
+      <div className="mb-3 sm:mb-4 text-center">
+        <span className="text-xs font-semibold uppercase tracking-wider text-primary-300">{type}</span>
+        <h3 className="text-lg sm:text-xl font-bold text-white mt-1 mb-1 flex items-center justify-center gap-2">
           {title}
           {title === "YAP Pakistan" && (
-             <a href="https://yappakistan.com/" target="_blank" rel="noopener noreferrer" className="text-[#6a8fb5] hover:text-white transition-colors duration-150">
-                <Link size={20} />
+             <a href="https://yappakistan.com/" target="_blank" rel="noopener noreferrer" className="text-primary-300 hover:text-white transition-colors duration-150">
+                <Link size={14} />
              </a>
           )}
         </h3>
       </div>
       
       {/* Description */}
-      <p className="text-gray-200 text-center mb-6">{description}</p>
+      <p className="text-secondary-200 text-center mb-4 sm:mb-6 text-sm leading-relaxed flex-grow">{description}</p>
       
       {/* Stats */}
-      <div className="flex justify-center gap-6 mb-6">
-        {stats.map(stat => (
-          <div key={stat.label} className="flex flex-col items-center">
-            <div className="text-lg font-bold text-white flex items-center gap-1">{stat.icon}{stat.value}</div>
-            <div className="text-xs text-gray-400">{stat.label}</div>
+      <div className="flex justify-center gap-4 sm:gap-6 mb-4 sm:mb-6">
+        {stats.map((stat, index) => (
+          <div key={index} className="flex flex-col items-center">
+            <div className="text-base sm:text-lg font-bold text-white flex items-center gap-1">{stat.icon}{stat.value}</div>
+            <div className="text-xs text-secondary-400">{stat.label}</div>
           </div>
         ))}
       </div>
       
       {/* Features */}
-      <ul className="mb-6 space-y-2">
+      <ul className="mb-4 space-y-1.5 text-secondary-200 text-sm leading-relaxed">
         {features.map((feature, i) => (
-          <li key={i} className="flex items-start gap-2 text-gray-200 text-sm">
-            <CheckCircle className="text-[#517fa4] mt-0.5" size={16} />
-            {feature}
+          <li key={i} className="flex items-start gap-2">
+            <CheckCircle className="text-primary-400 mt-1 flex-shrink-0" size={14} />
+            <span>{feature}</span>
           </li>
         ))}
       </ul>
       
       {/* Tech stack */}
-      <div className="flex flex-wrap gap-2 mt-auto">
+      <div className="flex flex-wrap gap-1.5 mt-auto pt-4 border-t border-secondary-700/50">
         {technologies.map(tech => (
-          <span key={tech} className="px-3 py-1 rounded-full bg-gradient-to-r from-[#517fa4]/40 to-[#243949]/40 text-white text-xs font-semibold border border-[#517fa4]/40 shadow-sm">
+          <span key={tech} className="px-2 py-0.5 rounded-full bg-secondary-700 text-primary-300 text-xs font-semibold border border-secondary-600 shadow-sm">
             {tech}
           </span>
         ))}
@@ -77,14 +74,14 @@ function ProjectsSection() {
     {
       title: "YAP Pakistan",
       description: "YAP is an innovative financial application (Branchless Banking) designed to provide users with intelligent tools, empowering them to take complete control of their finances.",
-      icon: <span style={{fontSize: '2.2rem', lineHeight: 1}}>🏦</span>,
+      icon: <span style={{fontSize: '2rem', lineHeight: 1}}>🏦</span>,
       status: "In Production",
-      statusColor: "bg-gradient-to-r from-green-500 to-green-600",
+      statusColor: "bg-success",
       type: "Fintech Platform",
       stats: [
-        { label: "APIs Built", value: "100+", icon: <Link2 size={18} /> },
-        { label: "Performance Gain", value: "50%", icon: <Zap size={18} /> },
-        { label: "Users Served", value: "10K+", icon: <Users size={18} /> }
+        { label: "APIs Built", value: "100+", icon: <Link2 size={16} /> },
+        { label: "Performance Gain", value: "50%", icon: <Zap size={16} /> },
+        { label: "Users Served", value: "10K+", icon: <Users size={16} /> }
       ],
       features: [
         "Developed 100+ secure REST APIs for Admin Portal and Mobile App",
@@ -97,14 +94,14 @@ function ProjectsSection() {
     {
       title: "Makro Customer Service", 
       description: "The Makro Customer Service application is an internal tool used by Makro, a leading retail company, to enhance and streamline its customer service operations.",
-      icon: <span style={{fontSize: '2.2rem', lineHeight: 1}}>🛍️</span>,
+      icon: <span style={{fontSize: '2rem', lineHeight: 1}}>🛍️</span>,
       status: "Completed",
-      statusColor: "bg-gradient-to-r from-[#517fa4] to-[#6a8fb5]",
+      statusColor: "bg-primary-600",
       type: "Enterprise Application", 
       stats: [
-        { label: "APIs Developed", value: "40+", icon: <Link2 size={18} /> },
-        { label: "Spring Upgrade", value: "1.5→2.7", icon: <Zap size={18} /> },
-        { label: "Performance", value: "+25%", icon: <Users size={18} /> }
+        { label: "APIs Developed", value: "40+", icon: <Link2 size={16} /> },
+        { label: "Spring Upgrade", value: "1.5→2.7", icon: <Zap size={16} /> },
+        { label: "Performance", value: "+25%", icon: <Users size={16} /> }
       ],
       features: [
         "Resolved complex dependency conflicts, ensuring smooth operation",
@@ -117,23 +114,24 @@ function ProjectsSection() {
   ];
 
   return (
-    <section ref={ref} id="projects" className="py-24 section-gradient relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 w-2/3 h-96 bg-gradient-to-tr from-[#517fa4]/20 via-[#6a8fb5]/20 to-[#243949]/10 rounded-full blur-3xl -translate-x-1/2"></div>
+    <section ref={ref} id="projects" className="py-16 sm:py-20 bg-secondary-900 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-10 left-1/4 w-40 h-40 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-10 right-1/4 w-40 h-40 bg-accent-purple rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-[#517fa4] via-[#6a8fb5] to-[#517fa4] bg-clip-text text-transparent mb-4">
-            Portfolio <span className="text-white">Showcase</span>
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 bg-clip-text text-transparent">
+            <span className="text-white">Portfolio</span> <span className="bg-gradient-to-r from-[#517fa4] to-[#6a8fb5] bg-clip-text text-transparent">Showcase</span>
           </h2>
-          <div className="w-32 h-1 bg-gradient-to-r from-[#517fa4] to-[#243949] mx-auto rounded-full mb-6 animate-pulse"></div>
-          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+          <div className="w-24 h-1 bg-gradient-to-r from-[#517fa4] to-[#6a8fb5] mx-auto rounded-full mb-6"></div>
+          <p className="text-base sm:text-lg text-secondary-300 max-w-3xl mx-auto">
             Real-world applications driving business impact
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
           {projects.map((project, idx) => (
-            <GlassCard key={project.title} {...project} />
+            <GlassCard key={idx} {...project} />
           ))}
         </div>
       </div>

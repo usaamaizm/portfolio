@@ -30,36 +30,39 @@ function AboutSection() {
   ];
 
   return (
-    <section ref={ref} id="about" className="py-20 section-gradient relative">
+    <section ref={ref} id="about" className="py-16 sm:py-20 bg-secondary-900 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className={`text-center mb-12 transition-all duration-150 ${
+        <div className={`text-center mb-12 sm:mb-16 transition-all duration-150 ${
           isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}>
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-4">
-            About <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Me</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 bg-clip-text text-transparent">
+            <span className="text-white">About</span> <span className="bg-gradient-to-r from-[#517fa4] to-[#6a8fb5] bg-clip-text text-transparent">Me</span>
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-[#517fa4] to-[#6a8fb5] mx-auto rounded-full mb-6"></div>
+          <p className="text-base sm:text-lg text-secondary-300 max-w-3xl mx-auto">
+            Get to know me better
+          </p>
         </div>
 
         {/* Two-column layout for cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
           {/* Left Card: Summary and Achievement Badges */}
-          <div className={`card-gradient backdrop-blur-sm rounded-2xl p-8 shadow-xl transition-all duration-500 ${isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
+          <div className={`bg-secondary-800/50 backdrop-blur-xl rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl transition-all duration-500 ${isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
                {summary.title}
             </h3>
-            <div className="space-y-6 text-gray-200 leading-relaxed mb-8">
+            <div className="space-y-4 sm:space-y-6 text-secondary-200 leading-relaxed mb-6 sm:mb-8 text-sm sm:text-base">
               {summary.paragraphs.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
 
             {/* Achievement Badges */}
-            <div className="flex flex-wrap gap-4 mt-8">
+            <div className="flex flex-wrap gap-3 sm:gap-4 mt-6 sm:mt-8">
               {achievementBadges.map((badge, index) => (
-                 <span key={index} className={`bg-gradient-to-r ${badge.color} ${badge.textColor} px-6 py-3 rounded-full text-sm font-semibold`}>
+                 <span key={index} className={`bg-gradient-to-r ${badge.color} ${badge.textColor} px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold shadow-md`}>
                     {badge.label}
                  </span>
               ))}
@@ -67,31 +70,29 @@ function AboutSection() {
           </div>
 
           {/* Right Card: What I Do */}
-          <div className={`card-gradient backdrop-blur-sm rounded-2xl p-8 shadow-xl transition-all duration-500 delay-150 ${isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <h4 className="text-2xl md:text-3xl font-bold text-white mb-6">
+          <div className={`bg-secondary-800/50 backdrop-blur-xl rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl transition-all duration-500 delay-150 ${isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <h4 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
               What I Do
             </h4>
             
             {/* Vertical list of What I Do items */} 
-            <div className="space-y-6"> {/* Changed to space-y for vertical layout */} 
+            <div className="space-y-4 sm:space-y-6"> 
               {whatIDoFeatures.map((item, index) => (
                 <div
                   key={index}
-                  className={`flex items-start gap-5 group p-4 rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 shadow-lg transition-all duration-300 ${ /* Glassmorphic styling for each item */
+                  className={`flex items-start gap-4 group p-3 sm:p-4 rounded-lg backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg transition-all duration-300 ${ 
                     isInView ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
                   }`}
-                  style={{ transitionDelay: `${index * 100 + 250}ms` }} /* Adjusted delay */
+                  style={{ transitionDelay: `${index * 100 + 250}ms` }}
                 >
-                  <div className={`w-12 h-12 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-xl transition-all duration-300`}> {/* Icon Container */} 
-                     {/* Use your 3D icon component or image here */} 
-                     {/* For now, using Lucide icon placeholder */} 
-                    <item.icon className="text-white" size={24} /> 
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${item.color} rounded-lg flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg transition-all duration-300`}> 
+                    <item.icon className="text-white" size={20} /> 
                   </div>
                   <div>
-                    <h5 className="font-bold text-lg text-white mb-1">
+                    <h5 className="font-semibold text-base sm:text-lg text-white mb-0.5">
                       {item.title}
                     </h5>
-                    <p className="text-gray-300 leading-relaxed text-sm">
+                    <p className="text-secondary-300 leading-relaxed text-sm sm:text-base">
                       {item.desc}
                     </p>
                   </div>
