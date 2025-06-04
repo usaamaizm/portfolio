@@ -1,88 +1,158 @@
-import React, { useState, useCallback } from 'react';
-import { Menu, X, Download } from 'lucide-react';
-import { useScroll } from '../hooks';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Menu, X } from 'lucide-react';
 
-// Enhanced Navigation with custom gradients
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const { scrolled } = useScroll();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
-  const navItems = [
+  // Handle scroll behavior
+  const handleScroll = useCallback(() => {
+    const scrollPosition = window.scrollY;
+    setIsScrolled(scrollPosition > 0);
+
+    // Update active section based on scroll position
+    const sections = ['home', 'about', 'experience', 'projects', 'skills', 'contact'];
+    const currentSection = sections.find(section => {
+      const element = document.getElementById(section);
+      if (element) {
+        const { offsetTop, offsetHeight } = element;
+        return scrollPosition >= offsetTop - 100 && scrollPosition < offsetTop + offsetHeight - 100;
+      }
+      return false;
+    });
+
+    if (currentSection) {
+      setActiveSection(currentSection);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest('nav')) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isOpen]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  // Handle smooth scroll
+  const handleNavClick = (e, href) => {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      const navHeight = 64; // Height of the navigation bar
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+      setIsOpen(false);
+    }
+  };
+
+  const navLinks = [
     { href: '#home', label: 'Home' },
     { href: '#about', label: 'About' },
     { href: '#experience', label: 'Experience' },
     { href: '#projects', label: 'Projects' },
     { href: '#skills', label: 'Skills' },
-    { href: '#contact', label: 'Contact' }
+    { href: '#contact', label: 'Contact' },
   ];
 
-  const scrollTo = useCallback((href) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsOpen(false);
-    }
-  }, []);
-
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${
-      scrolled 
-        ? 'card-gradient backdrop-blur-md shadow-2xl' 
-        : 'bg-transparent'
-    }`}>
+    <nav 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-secondary-900/80 backdrop-blur-md shadow-lg' 
+          : 'bg-transparent'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className={`font-bold text-xl transition-all duration-200 ${
-            scrolled ? 'scale-95' : 'scale-100'
-          } text-white`}>
-            <span className="bg-gradient-to-r from-[#517fa4] to-[#6a8fb5] bg-clip-text text-transparent">
-              Muhammad Usama
-            </span>
-          </div>
-          
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-2">
-            {navItems.map((item, index) => (
-              <button
-                key={item.href}
-                onClick={() => scrollTo(item.href)}
-                className="relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white rounded-xl transition-all duration-150 group hover:scale-105"
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <a 
+            href="#home" 
+            onClick={(e) => handleNavClick(e, '#home')}
+            className="text-xl font-bold text-white hover:text-primary-300 transition-colors duration-300"
+          >
+            MU
+          </a>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  activeSection === link.href.substring(1)
+                    ? 'text-primary-300 bg-white/5'
+                    : 'text-secondary-200 hover:text-primary-300 hover:bg-white/5'
+                }`}
               >
-                {item.label}
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#517fa4]/20 to-[#243949]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-150 -z-10"></span>
-              </button>
+                {link.label}
+              </a>
             ))}
           </div>
-          
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-gray-300 rounded-xl transition-all duration-150 hover:scale-110"
-            >
-              <div className="relative w-6 h-6">
-                <Menu className={`absolute transition-all duration-150 ${isOpen ? 'opacity-0 rotate-180 scale-0' : 'opacity-100 rotate-0 scale-100'}`} size={24} />
-                <X className={`absolute transition-all duration-150 ${isOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-180 scale-0'}`} size={24} />
-              </div>
-            </button>
-          </div>
+
+          {/* Mobile Navigation Button */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 rounded-lg text-secondary-200 hover:text-primary-300 hover:bg-white/5 transition-colors duration-300"
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
-        
-        {/* Mobile Menu Dropdown */}
-        <div className={`md:hidden overflow-hidden transition-all duration-300 ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}>
-          <div className="py-4 card-gradient backdrop-blur-md rounded-2xl shadow-xl border border-[#517fa4]/30 mt-2">
-            {navItems.map((item, index) => (
-              <button
-                key={item.href}
-                onClick={() => scrollTo(item.href)}
-                className="block w-full text-left px-6 py-3 text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-[#517fa4]/20 hover:to-[#243949]/20 transition-all duration-150"
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+      </div>
+
+      {/* Mobile Navigation Menu */}
+      <div 
+        className={`md:hidden fixed inset-0 bg-secondary-900/95 backdrop-blur-md transition-all duration-300 ease-in-out ${
+          isOpen 
+            ? 'opacity-100 translate-y-16' 
+            : 'opacity-0 -translate-y-full pointer-events-none'
+        }`}
+      >
+        <div className="h-full flex flex-col justify-center px-4 py-8 space-y-6">
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={(e) => handleNavClick(e, link.href)}
+              className={`block text-center text-lg transition-colors duration-300 py-2 ${
+                activeSection === link.href.substring(1)
+                  ? 'text-primary-300'
+                  : 'text-secondary-200 hover:text-primary-300'
+              }`}
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
       </div>
     </nav>

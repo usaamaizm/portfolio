@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, Zap, CheckCircle, Link, Code, Settings } from 'lucide-react';
+import { CheckCircle, Link } from 'lucide-react';
 import { useInView } from '../hooks';
 
 // Enhanced Experience Section with custom gradients
@@ -10,7 +10,7 @@ function ExperienceSection() {
       title: "Software Engineer",
       company: "YAP Pakistan",
       period: "Feb 2025 - Present",
-      location: "Remote",
+      location: "On-site",
       description: [
         "Leading backend development for Pakistan's premier fintech platform",
         "Architecting scalable microservices for financial transactions and banking operations",
@@ -20,15 +20,15 @@ function ExperienceSection() {
       ],
       technologies: ["Java", "Spring Boot", "Microservices", "Payment Systems", "Banking APIs", "Security"],
       status: "Current",
-      statusColor: "bg-gradient-to-r from-green-500 to-green-600",
-      icon: <span style={{fontSize: '2rem'}}>🏦</span>,
+      statusColor: "bg-success",
+      icon: <span style={{fontSize: '1.5rem'}}>🏦</span>,
       type: "Fintech Platform"
     },
     {
       title: "Associate Software Engineer",
       company: "Digitify",
       period: "Aug 2024 - Feb 2025",
-      location: "Remote",
+      location: "On-site",
       description: [
         "Designed and built secure RESTful APIs to facilitate communication between different system components",
         "Streamlined TPIN management by automating expiration handling and enhancing security workflows within the YAP Pakistan platform",
@@ -37,15 +37,15 @@ function ExperienceSection() {
       ],
       technologies: ["Java", "Spring Boot", "REST APIs", "Security", "Automation", "Financial Systems"],
       status: "Completed",
-      statusColor: "bg-gradient-to-r from-[#517fa4] to-[#6a8fb5]",
-      icon: <span style={{fontSize: '2rem'}}>💸</span>,
+      statusColor: "bg-primary-600",
+      icon: <span style={{fontSize: '1.5rem'}}>💸</span>,
       type: "Enterprise Application"
     },
     {
       title: "Java Software Engineer",
       company: "Meganos",
       period: "Oct 2023 - July 2024",
-      location: "Remote",
+      location: "Hybrid",
       description: [
         "Delivered critical upgrades and enhancements for the Makro Customer Service application, serving a substantial user base",
         "Enhanced API efficiency, significantly reducing response times and server load",
@@ -53,73 +53,77 @@ function ExperienceSection() {
       ],
       technologies: ["Java", "Spring Boot", "API Optimization", "Spring Migration", "AWS EC2"],
       status: "Completed",
-      statusColor: "bg-gradient-to-r from-[#517fa4] to-[#6a8fb5]",
-      icon: <span style={{fontSize: '2rem'}}>🏢</span>,
+      statusColor: "bg-primary-600",
+      icon: <span style={{fontSize: '1.5rem'}}>🏢</span>,
       type: "Enterprise Application"
     }
   ];
 
   return (
-    <section ref={ref} id="experience" className="py-20 section-gradient relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-10 left-1/4 w-72 h-72 bg-gradient-to-r from-[#517fa4]/10 to-[#243949]/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-1/4 w-72 h-72 bg-gradient-to-r from-[#243949]/10 to-[#517fa4]/10 rounded-full blur-3xl"></div>
+    <section ref={ref} id="experience" className="py-16 sm:py-20 bg-secondary-900 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-10 left-1/4 w-40 h-40 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-10 right-1/4 w-40 h-40 bg-accent-purple rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
       </div>
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-[#517fa4] via-[#6a8fb5] to-[#517fa4] bg-clip-text text-transparent mb-4">
-            Career <span className="text-white">Journey</span>
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4">
+            Career <span className="text-primary-300">Journey</span>
           </h2>
-          <div className="w-32 h-1 bg-gradient-to-r from-[#517fa4] to-[#243949] mx-auto rounded-full mb-6 animate-pulse"></div>
-          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+          <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full mb-6 animate-pulse"></div>
+          <p className="text-base sm:text-lg text-secondary-300 max-w-3xl mx-auto">
             Building enterprise solutions with cutting-edge technology
           </p>
         </div>
         {/* Timeline */}
         <div className="relative">
-          <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-[#517fa4] via-[#6a8fb5] to-[#243949] rounded-full opacity-60"></div>
-          <div className="space-y-12">
+          {/* Vertical Line */}
+          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-primary-500 opacity-50 rounded-full"></div>
+          <div className="space-y-10 sm:space-y-12 pl-8 sm:pl-0">
             {experiences.map((exp, idx) => (
-              <div key={exp.title} className="relative flex gap-8 items-start">
+              <div key={idx} className="relative flex items-start">
                 {/* Timeline Node */}
-                <div className="flex flex-col items-center z-10">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#517fa4]/80 to-[#243949]/80 backdrop-blur-sm border-4 border-white/20 flex items-center justify-center shadow-lg">
+                <div className="relative flex flex-col items-center z-10 -ml-10 sm:-ml-12">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary-600/80 backdrop-blur-sm border-2 sm:border-4 border-white/20 flex items-center justify-center shadow-lg text-white text-lg sm:text-xl">
                     {exp.icon}
                   </div>
                   {idx !== experiences.length - 1 && (
-                    <div className="flex-1 w-1 bg-gradient-to-b from-[#517fa4] to-[#243949] opacity-30 mt-4"></div>
+                    <div className="flex-1 w-0.5 bg-primary-500 opacity-30 mt-4"></div>
                   )}
                 </div>
                 {/* Content */}
-                <div className="flex-1 card-gradient backdrop-blur-xl rounded-3xl shadow-xl border border-[#517fa4]/30 p-8">
+                <div className="flex-1 bg-secondary-800/50 backdrop-blur-xl rounded-xl sm:rounded-3xl shadow-xl border border-primary-700/30 p-4 sm:p-6 ml-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-1">{exp.title}</h3>
-                      <div className="text-sm text-[#6a8fb5] font-semibold mb-1 flex items-center gap-2">
+                    <div className="flex-1 mb-2 sm:mb-0 sm:mr-4">
+                      <h3 className="text-base sm:text-lg font-bold text-white mb-0.5">{exp.title}</h3>
+                      <div className="text-sm text-primary-300 font-semibold flex items-center gap-2">
                         {exp.company}
                         {exp.company === "YAP Pakistan" && (
-                          <a href="https://yappakistan.com/" target="_blank" rel="noopener noreferrer" className="text-[#6a8fb5] hover:text-white transition-colors duration-150">
-                            <Link size={16} />
+                          <a href="https://yappakistan.com/" target="_blank" rel="noopener noreferrer" className="text-primary-300 hover:text-white transition-colors duration-150">
+                            <Link size={12} />
                           </a>
                         )}
                       </div>
-                      <div className="text-xs text-gray-400 mb-2">{exp.period} &bull; {exp.location}</div>
+                      <div className="text-xs text-secondary-400 mt-1">{exp.period} &bull; {exp.location}</div>
                     </div>
-                    <span className={`px-4 py-1 rounded-full text-xs font-bold text-white ${exp.statusColor} shadow-lg mt-2 sm:mt-0`}>
-                      {exp.status}
-                    </span>
+                    {/* Status Badge */}
+                    <div className="flex-shrink-0">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-bold text-white ${exp.statusColor} shadow-lg inline-block`}>
+                        {exp.status}
+                      </span>
+                    </div>
                   </div>
-                  <ul className="mb-4 space-y-2">
+                  <ul className="mb-4 space-y-1.5 text-secondary-200 text-sm leading-relaxed">
                     {exp.description.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-gray-200 text-sm">
-                        <CheckCircle className="text-[#517fa4] mt-0.5" size={16} />
-                        {item}
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle className="text-primary-400 mt-1 flex-shrink-0" size={14} />
+                        <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div className="flex flex-wrap gap-1.5 mt-3">
                     {exp.technologies.map(tech => (
-                      <span key={tech} className="px-3 py-1 rounded-full bg-gradient-to-r from-[#517fa4]/40 to-[#243949]/40 text-white text-xs font-semibold border border-[#517fa4]/40 shadow-sm">
+                      <span key={tech} className="px-2 py-0.5 rounded-full bg-secondary-700 text-primary-300 text-xs font-semibold border border-secondary-600 shadow-sm">
                         {tech}
                       </span>
                     ))}
