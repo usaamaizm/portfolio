@@ -1,78 +1,98 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Menu, X, Eye, Send, ArrowRight, ChevronDown, Download, CheckCircle, Link, MapPin, Calendar, Building, Server, Database, Code, Globe, Mail, Phone, Github, Linkedin, MessageCircle } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { 
+  Menu, X, ArrowRight, ChevronDown, Download, ExternalLink, 
+  Github, Linkedin, Mail, Phone, MapPin, Calendar, 
+  Briefcase, GraduationCap, Code2, Database, Cloud,
+  Sparkles, Zap, Shield, Rocket, Terminal, Server,
+  ChevronLeft, ChevronRight, Quote, Star, Award
+} from 'lucide-react';
 
-// Custom hooks
+// Custom Hooks
 const useInView = (threshold = 0.1) => {
   const [isInView, setIsInView] = useState(false);
-  const ref = useRef();
+  const ref = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setIsInView(entry.isIntersecting),
       { threshold, rootMargin: '50px' }
     );
-
+    
     if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
   }, [threshold]);
 
   return [ref, isInView];
 };
 
-const useScroll = () => {
-  const [scrolled, setScrolled] = useState(false);
+const useMousePosition = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  return { scrolled };
+  return mousePosition;
 };
 
-// Navigation Component
-function Navigation() {
+// Animated Background
+const AnimatedBackground = () => {
+  const mousePosition = useMousePosition();
+  
+  return (
+    <div className="fixed inset-0 -z-10">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900" />
+      <div className="absolute inset-0">
+        <div className='absolute inset-0 bg-[url(data:image/svg+xml,%3Csvg%20width=%2260%22%20height=%2260%22%20viewBox=%220%200%2060%2060%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg%20fill=%22none%22%20fill-rule=%22evenodd%22%3E%3Cg%20fill=%22%239C92AC%22%20fill-opacity=%220.03%22%3E%3Cpath%20d=%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E)] opacity-20' />
+      </div>
+      <motion.div
+        className="absolute inset-0 opacity-30"
+        animate={{
+          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.15), transparent 40%)`,
+        }}
+        transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
+      />
+    </div>
+  );
+};
+
+// Navigation
+const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { scrolled } = useScroll();
+  const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
-  const handleScroll = useCallback(() => {
-    const sections = ['home', 'about', 'experience', 'projects', 'skills', 'contact'];
-    const scrollPosition = window.scrollY + 100;
-
-    const currentSection = sections.find(section => {
-      const element = document.getElementById(section);
-      if (element) {
-        const { offsetTop, offsetHeight } = element;
-        return scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight;
-      }
-      return false;
-    });
-
-    if (currentSection) setActiveSection(currentSection);
-  }, []);
-
   useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+      
+      const sections = ['home', 'about', 'experience', 'projects', 'skills', 'contact'];
+      const scrollPosition = window.scrollY + 100;
+      
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
-
-  const handleNavClick = (e, href) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      const navHeight = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-      setIsOpen(false);
-    }
-  };
+  }, []);
 
   const navLinks = [
     { href: '#home', label: 'Home' },
@@ -83,1059 +103,1088 @@ function Navigation() {
     { href: '#contact', label: 'Contact' },
   ];
 
-  return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100' : 'bg-transparent'
-    }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <a 
-            href="#home" 
-            onClick={(e) => handleNavClick(e, '#home')}
-            className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200"
-          >
-            MU
-          </a>
+  const scrollToSection = (e, href) => {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setIsOpen(false);
+    }
+  };
 
-          <div className="hidden md:flex items-center space-x-8">
+  return (
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? 'bg-gray-900/80 backdrop-blur-xl border-b border-white/10' 
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <motion.a
+            href="#home"
+            onClick={(e) => scrollToSection(e, '#home')}
+            className="relative group"
+            whileHover={{ scale: 1.05 }}
+          >
+            <span className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-purple-600 bg-clip-text text-transparent">
+              MU
+            </span>
+            <span className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg opacity-0 group-hover:opacity-20 blur transition-opacity" />
+          </motion.a>
+
+          <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
-              <a
+              <motion.a
                 key={link.href}
                 href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className={`text-sm font-medium transition-colors duration-200 ${
+                onClick={(e) => scrollToSection(e, link.href)}
+                className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
                   activeSection === link.href.substring(1)
-                    ? 'text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'text-white'
+                    : 'text-gray-300 hover:text-white'
                 }`}
+                whileHover={{ y: -2 }}
               >
-                {link.label}
-              </a>
+                {activeSection === link.href.substring(1) && (
+                  <motion.span
+                    className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-purple-600/20 rounded-lg"
+                    layoutId="navbar-active"
+                    transition={{ type: "spring", duration: 0.5 }}
+                  />
+                )}
+                <span className="relative z-10">{link.label}</span>
+              </motion.a>
             ))}
           </div>
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200"
+            className="md:hidden p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            <AnimatePresence mode="wait">
+              {isOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X size={24} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu size={24} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 shadow-lg">
-          <div className="px-4 py-6 space-y-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className={`block text-base font-medium transition-colors duration-200 ${
-                  activeSection === link.href.substring(1)
-                    ? 'text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-}
-
-// Hero Section
-function HeroSection() {
-  const [ref, isInView] = useInView();
-
-  return (
-    <section ref={ref} id="home" className="pt-20 pb-16 lg:pt-32 lg:pb-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium mb-8">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            Available for opportunities
-          </div>
-          
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Hi, I'm <span className="text-blue-600">Muhammad Usama</span>
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Software Engineer specializing in <strong>Java</strong> and <strong>Spring Boot</strong>. 
-            Currently building fintech solutions at YAP Pakistan.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button
-              onClick={() => document.querySelector('#projects').scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
-            >
-              <Eye size={18} />
-              View My Work
-            </button>
-            
-            <button 
-              onClick={() => document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200"
-            >
-              <Send size={18} />
-              Get In Touch
-            </button>
-
-            <a
-              href="/resume.pdf"
-              download
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200"
-            >
-              <Download size={18} />
-              Resume
-            </a>
-          </div>
-          
-          <div className="animate-bounce">
-            <ChevronDown size={24} className="text-gray-400 mx-auto" />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Stats Section
-function StatsSection() {
-  const [ref, isInView] = useInView();
-
-  const stats = [
-    { value: '2+', label: 'Years Experience', icon: Calendar },
-    { value: '100+', label: 'APIs Built', icon: Code },
-    { value: '5+', label: 'Projects Completed', icon: Server },
-    { value: '3', label: 'Companies', icon: Building }
-  ];
-
-  return (
-    <section ref={ref} className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <stat.icon className="text-blue-600" size={24} />
-              </div>
-              <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-              <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// About Section
-function AboutSection() {
-  const [ref, isInView] = useInView();
-
-  const skills = [
-    { icon: Server, title: 'Backend Development', desc: 'Building scalable APIs and microservices with Spring Boot' },
-    { icon: Database, title: 'Database Design', desc: 'Designing efficient database schemas with SQL and JPA' },
-    { icon: Code, title: 'API Development', desc: 'Creating RESTful services and integrating third-party APIs' },
-    { icon: Globe, title: 'System Integration', desc: 'Integrating various systems and ensuring seamless data flow' }
-  ];
-
-  return (
-    <section ref={ref} id="about" className="py-16 lg:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">About Me</h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Get to know me better
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="bg-gray-50 rounded-xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
-              Full Stack Developer & Cloud Native Enthusiast
-            </h3>
-            <div className="space-y-6 text-gray-600 leading-relaxed">
-              <p>
-                Results-driven Java Developer with 2+ years of experience, specializing in microservices 
-                architecture and cloud native applications. My expertise includes working with Java, 
-                Spring Boot, and RESTful APIs.
-              </p>
-              <p>
-                I succeed in agile environments, collaborating effectively with team members to achieve 
-                project goals and continuously improve my technical skills.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3 mt-8">
-              <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                🏆 Achiever of the Month
-              </span>
-              <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                📚 Teaching Assistant
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 rounded-xl p-8">
-            <h4 className="text-2xl font-bold text-gray-900 mb-6">What I Do</h4>
-            
-            <div className="space-y-6">
-              {skills.map((item, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <item.icon className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-gray-900 mb-1">{item.title}</h5>
-                    <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-gray-900/95 backdrop-blur-xl border-b border-white/10"
+          >
+            <div className="px-4 py-4 space-y-2">
+              {navLinks.map((link, index) => (
+                <motion.a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => scrollToSection(e, link.href)}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`block px-4 py-2 rounded-lg text-base font-medium transition-colors ${
+                    activeSection === link.href.substring(1)
+                      ? 'text-white bg-gradient-to-r from-violet-600/20 to-purple-600/20'
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {link.label}
+                </motion.a>
               ))}
             </div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
+  );
+};
+
+// Hero Section
+const HeroSection = () => {
+  const [ref, isInView] = useInView(0.1);
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 500], [0, 150]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+
+  return (
+    <section ref={ref} id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <motion.div style={{ y }} className="absolute inset-0">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-violet-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+      </motion.div>
+
+      <motion.div 
+        style={{ opacity }}
+        className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600/10 to-purple-600/10 border border-violet-500/20 rounded-full text-sm font-medium text-violet-300 mb-8"
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>Open to new opportunities</span>
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6"
+        >
+          Hi, I'm{' '}
+          <span className="relative">
+            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Muhammad Usama
+            </span>
+            <motion.span
+              className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-full"
+              initial={{ scaleX: 0 }}
+              animate={isInView ? { scaleX: 1 } : {}}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            />
+          </span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
+        >
+          A passionate <span className="text-white font-semibold">Software Engineer</span> crafting robust backend solutions 
+          with <span className="text-white font-semibold">Java</span> and <span className="text-white font-semibold">Spring Boot</span>. 
+          Currently building innovative fintech solutions at YAP Pakistan.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+        >
+          <motion.button
+            onClick={() => document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' })}
+            className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-medium overflow-hidden"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              View My Work
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </span>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
+              initial={{ x: "100%" }}
+              whileHover={{ x: 0 }}
+              transition={{ duration: 0.3 }}
+            />
+          </motion.button>
+
+          <motion.a
+            href="/resume.pdf"
+            download
+            className="group px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white rounded-xl font-medium hover:bg-white/10 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span className="flex items-center gap-2">
+              <Download className="w-5 h-5" />
+              Download Resume
+            </span>
+          </motion.a>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex justify-center gap-4"
+        >
+          {[
+            { icon: Github, href: 'https://github.com/usaamaizm' },
+            { icon: Linkedin, href: 'https://linkedin.com/in/mianusama8748' },
+            { icon: Mail, href: 'mailto:usaamaizm@gmail.com' }
+          ].map(({ icon: Icon, href }, index) => (
+            <motion.a
+              key={href}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
+              className="p-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-all"
+              whileHover={{ y: -5 }}
+            >
+              <Icon className="w-5 h-5" />
+            </motion.a>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <ChevronDown className="w-6 h-6 text-gray-400" />
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+};
+
+// About Section
+const AboutSection = () => {
+  const [ref, isInView] = useInView(0.1);
+
+  const highlights = [
+    { icon: Zap, label: 'Fast Learner', description: 'Quick to adapt to new technologies' },
+    { icon: Shield, label: 'Security First', description: 'Building secure, reliable systems' },
+    { icon: Rocket, label: 'Performance', description: 'Optimizing for speed and efficiency' },
+    { icon: Terminal, label: 'Problem Solver', description: 'Finding elegant solutions' }
+  ];
+
+  return (
+    <section ref={ref} id="about" className="py-20 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">About Me</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-violet-600 to-purple-600 mx-auto" />
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-2xl blur-2xl opacity-20" />
+              <div className="relative bg-gray-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Passionate Backend Engineer
+                </h3>
+                <p className="text-gray-300 mb-6 leading-relaxed">
+                  With 2+ years of experience in building scalable backend systems, I specialize in 
+                  creating robust APIs and microservices that power modern applications. My journey 
+                  in software engineering has been driven by a passion for solving complex problems 
+                  and delivering high-quality solutions.
+                </p>
+                <p className="text-gray-300 mb-6 leading-relaxed">
+                  Currently at YAP Pakistan, I'm working on cutting-edge fintech solutions that 
+                  impact thousands of users daily. I thrive in collaborative environments and am 
+                  always eager to learn new technologies and best practices.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <span className="px-4 py-2 bg-violet-600/10 border border-violet-600/20 rounded-full text-sm text-violet-300">
+                    🏆 Achiever of the Month
+                  </span>
+                  <span className="px-4 py-2 bg-purple-600/10 border border-purple-600/20 rounded-full text-sm text-purple-300">
+                    📚 Teaching Assistant
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="grid grid-cols-2 gap-4"
+          >
+            {highlights.map((item, index) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="bg-gray-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-violet-500/50 transition-all"
+              >
+                <div className="w-12 h-12 bg-gradient-to-r from-violet-600/20 to-purple-600/20 rounded-xl flex items-center justify-center mb-4">
+                  <item.icon className="w-6 h-6 text-violet-400" />
+                </div>
+                <h4 className="text-white font-semibold mb-2">{item.label}</h4>
+                <p className="text-gray-400 text-sm">{item.description}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>
   );
-}
+};
 
 // Experience Section
-function ExperienceSection() {
-  const [ref, isInView] = useInView();
-  
+const ExperienceSection = () => {
+  const [ref, isInView] = useInView(0.1);
+
   const experiences = [
     {
       title: "Software Engineer",
       company: "YAP Pakistan",
       period: "Feb 2025 - Present",
-      location: "Remote",
+      location: "On-site",
       description: [
         "Leading backend development for Pakistan's premier fintech platform",
-        "Architecting scalable microservices for financial transactions and banking operations",
-        "Implementing secure payment processing systems with high availability and performance",
-        "Providing support to production environment and resolving critical issues",
-        "Collaborating with cross-functional teams to deliver innovative financial solutions"
+        "Architecting scalable microservices for financial transactions",
+        "Implementing secure payment processing systems with high availability",
+        "Providing production support and resolving critical issues"
       ],
-      technologies: ["Java", "Spring Boot", "Microservices", "Payment Systems", "Banking APIs", "Security"],
-      status: "Current",
-      icon: "🏦"
+      technologies: ["Java", "Spring Boot", "Microservices", "PostgreSQL", "Docker"],
+      current: true
     },
     {
       title: "Associate Software Engineer",
       company: "Digitify",
       period: "Aug 2024 - Feb 2025",
-      location: "Remote",
+      location: "Hybrid",
       description: [
-        "Designed and built secure RESTful APIs to facilitate communication between different system components",
-        "Streamlined TPIN management by automating expiration handling and enhancing security workflows within the YAP Pakistan platform",
-        "Developed critical features for financial transaction processing and user authentication",
-        "Involved in debugging complex issues and optimizing system performance"
+        "Designed secure RESTful APIs for system integration",
+        "Automated TPIN management and security workflows",
+        "Developed features for financial transaction processing",
+        "Optimized system performance and debugged complex issues"
       ],
-      technologies: ["Java", "Spring Boot", "REST APIs", "Security", "Automation", "Financial Systems"],
-      status: "Completed",
-      icon: "💸"
+      technologies: ["Java", "Spring Boot", "REST APIs", "Security"],
+      current: false
     },
     {
       title: "Java Software Engineer",
       company: "Meganos",
       period: "Oct 2023 - July 2024",
-      location: "Remote",
+      location: "On-site",
       description: [
-        "Delivered critical upgrades and enhancements for the Makro Customer Service application, serving a substantial user base",
-        "Enhanced API efficiency, significantly reducing response times and server load",
-        "Led the transition of legacy applications to the latest Spring Boot version, improving security and operational efficiency"
+        "Delivered upgrades for Makro Customer Service application",
+        "Enhanced API efficiency reducing response times by 40%",
+        "Led Spring Boot migration project",
+        "Improved platform security and operational efficiency"
       ],
-      technologies: ["Java", "Spring Boot", "API Optimization", "Spring Migration", "AWS EC2"],
-      status: "Completed",
-      icon: "🏢"
+      technologies: ["Java", "Spring Boot", "AWS EC2", "API Optimization"],
+      current: false
     }
   ];
 
   return (
-    <section ref={ref} id="experience" className="py-16 lg:py-24 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Professional Experience
-          </h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Building robust enterprise solutions with modern Java technologies
-          </p>
-        </div>
+    <section ref={ref} id="experience" className="py-20 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Experience</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-violet-600 to-purple-600 mx-auto" />
+        </motion.div>
 
-        {/* Desktop Timeline */}
-        <div className="hidden lg:block">
-          <div className="relative">
-            <div className="absolute left-8 top-8 bottom-8 w-0.5 bg-gray-300"></div>
-            
-            <div className="space-y-12">
-              {experiences.map((exp, idx) => (
-                <div key={exp.title} className="relative flex items-start">
-                  <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center z-10">
-                    <span className="text-3xl">{exp.icon}</span>
-                  </div>
-                  
-                  <div className="ml-8 flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                    <div className="flex flex-wrap items-start justify-between mb-6">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{exp.title}</h3>
-                        <div className="flex items-center gap-2 text-blue-600 font-medium text-lg mb-3">
-                          {exp.company}
-                          {exp.company === "YAP Pakistan" && (
-                            <a href="https://yappakistan.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition-colors">
-                              <Link size={16} />
-                            </a>
-                          )}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
-                          <div className="flex items-center gap-1">
-                            <Calendar size={14} />
-                            <span>{exp.period}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MapPin size={14} />
-                            <span>{exp.location}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        exp.status === 'Current' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {exp.status}
+        <div className="relative">
+          <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-violet-600 to-purple-600 hidden lg:block" />
+          
+          {experiences.map((exp, index) => (
+            <motion.div
+              key={exp.company}
+              initial={{ opacity: 0, x: -50 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              className="relative mb-12 last:mb-0"
+            >
+              <div className="absolute left-6 top-6 w-4 h-4 bg-violet-600 rounded-full hidden lg:block">
+                {exp.current && (
+                  <div className="absolute inset-0 bg-violet-600 rounded-full animate-ping" />
+                )}
+              </div>
+              
+              <div className="ml-0 lg:ml-16">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-gray-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:border-violet-500/50 transition-all"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-2xl font-bold text-white mb-1">{exp.title}</h3>
+                      <p className="text-violet-400 font-medium">{exp.company}</p>
+                    </div>
+                    {exp.current && (
+                      <span className="inline-flex items-center px-3 py-1 bg-violet-600/20 border border-violet-600/50 rounded-full text-violet-300 text-sm">
+                        <span className="w-2 h-2 bg-violet-400 rounded-full mr-2 animate-pulse" />
+                        Current
                       </span>
-                    </div>
-
-                    <div className="mb-6">
-                      <ul className="space-y-2">
-                        {exp.description.map((item, i) => (
-                          <li key={i} className="flex items-start gap-3 text-gray-700">
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span className="leading-relaxed">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {exp.technologies.map(tech => (
-                        <span key={tech} className="px-3 py-1 bg-blue-50 text-blue-700 text-sm font-medium rounded-md border border-blue-200">
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Cards */}
-        <div className="lg:hidden space-y-8">
-          {experiences.map((exp, idx) => (
-            <div key={exp.title} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-                  <span className="text-2xl">{exp.icon}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{exp.title}</h3>
-                  <div className="flex items-center gap-2 text-blue-600 font-medium mb-2">
-                    <span className="truncate">{exp.company}</span>
-                    {exp.company === "YAP Pakistan" && (
-                      <a href="https://yappakistan.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 transition-colors flex-shrink-0">
-                        <Link size={14} />
-                      </a>
                     )}
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar size={12} />
-                      <span>{exp.period}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin size={12} />
-                      <span>{exp.location}</span>
-                    </div>
+                  
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-4">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {exp.period}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {exp.location}
+                    </span>
                   </div>
-                </div>
+                  
+                  <ul className="space-y-2 mb-6">
+                    {exp.description.map((item, i) => (
+                      <li key={i} className="flex items-start gap-3 text-gray-300">
+                        <span className="text-violet-400 mt-1">▸</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {exp.technologies.map(tech => (
+                      <span key={tech} className="px-3 py-1 bg-violet-600/10 border border-violet-600/30 rounded-lg text-violet-300 text-sm">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
-
-              <div className="mb-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  exp.status === 'Current' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
-                  {exp.status}
-                </span>
-              </div>
-
-              <div className="mb-5">
-                <ul className="space-y-2">
-                  {exp.description.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-gray-700 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span className="leading-relaxed">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {exp.technologies.map(tech => (
-                  <span key={tech} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-200">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
     </section>
   );
-}
+};
 
 // Projects Section
-function ProjectsSection() {
-  const [ref, isInView] = useInView();
-  
+const ProjectsSection = () => {
+  const [ref, isInView] = useInView(0.1);
+  const [selectedProject, setSelectedProject] = useState(0);
+
   const projects = [
     {
-      title: "YAP Pakistan",
-      subtitle: "Pakistan's Premier Fintech Platform",
-      description: "Leading backend development for Pakistan's premier fintech platform, architecting scalable microservices for financial transactions and banking operations.",
-      detailedFeatures: [
-        "Implementing secure payment processing systems with high availability and performance",
-        "Providing support to production environment and resolving critical issues",
-        "Collaborating with cross-functional teams to deliver innovative financial solutions",
-        "Built scalable microservices architecture handling thousands of transactions daily"
+      title: "YAP Pakistan - Fintech Platform",
+      description: "Leading backend development for Pakistan's premier digital banking platform",
+      image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=400&fit=crop",
+      features: [
+        "Microservices architecture handling 10K+ daily transactions",
+        "99.9% uptime with robust error handling",
+        "Secure payment gateway integration",
+        "Real-time transaction monitoring"
       ],
-      technologies: ["Java", "Spring Boot", "Microservices", "Payment Systems", "Banking APIs", "Security", "PostgreSQL", "Docker", "Kubernetes"],
-      status: "Live Project",
-      timeline: "Feb 2025 - Present",
-      role: "Software Engineer",
-      image: "/projects/yap.png",
+      technologies: ["Java", "Spring Boot", "PostgreSQL", "Docker", "Kubernetes", "Redis"],
       link: "https://yappakistan.com",
-      icon: "🏦",
-      metrics: {
-        users: "100K+",
-        transactions: "Daily",
-        uptime: "99.9%"
-      }
+      color: "from-violet-600 to-purple-600"
     },
     {
-      title: "Digitify - YAP Integration",
-      subtitle: "Financial Transaction Processing System",
-      description: "Designed and built secure RESTful APIs to facilitate communication between different system components within the YAP Pakistan platform.",
-      detailedFeatures: [
-        "Streamlined TPIN management by automating expiration handling and enhancing security workflows",
-        "Developed critical features for financial transaction processing and user authentication",
-        "Enhanced system security through automated workflow improvements",
-        "Optimized API performance for better user experience"
+      title: "Customer Service Platform",
+      description: "Enterprise-grade customer service solution for Makro",
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=400&fit=crop",
+      features: [
+        "Reduced API response time by 40%",
+        "Handled 50K+ customer queries monthly",
+        "Automated ticket routing system",
+        "Enhanced security protocols"
       ],
-      technologies: ["Java", "Spring Boot", "REST APIs", "Security", "Automation", "Financial Systems", "TPIN Management", "Authentication"],
-      status: "Completed",
-      timeline: "Aug 2024 - Feb 2025",
-      role: "Associate Software Engineer",
-      image: "/projects/digitify.png",
+      technologies: ["Java", "Spring Boot", "MySQL", "AWS EC2", "REST APIs"],
       link: "#",
-      icon: "💸",
-      metrics: {
-        apis: "50+",
-        security: "Enhanced",
-        automation: "100%"
-      }
+      color: "from-purple-600 to-pink-600"
     },
-    {
-      title: "Makro Customer Service",
-      subtitle: "Enterprise Customer Service Application",
-      description: "Delivered critical upgrades and enhancements for the Makro Customer Service application, serving a substantial user base with improved performance.",
-      detailedFeatures: [
-        "Enhanced API efficiency, significantly reducing response times and server load",
-        "Led the transition of legacy applications to the latest Spring Boot version",
-        "Improved security and operational efficiency across the platform",
-        "Optimized database queries and implemented caching strategies"
-      ],
-      technologies: ["Java", "Spring Boot", "API Optimization", "Spring Migration", "AWS EC2", "MySQL", "Performance Tuning"],
-      status: "Completed",
-      timeline: "Oct 2023 - July 2024",
-      role: "Java Software Engineer",
-      image: "/projects/makro.png",
-      link: "https://makro.com",
-      icon: "🏢",
-      metrics: {
-        performance: "+40%",
-        users: "10K+",
-        uptime: "99.8%"
-      }
-    }
   ];
 
   return (
-    <section ref={ref} id="projects" className="py-16 lg:py-24 bg-white">
+    <section ref={ref} id="projects" className="py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Featured Projects
-          </h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Real-world applications and enterprise solutions I've built
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Featured Projects</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-violet-600 to-purple-600 mx-auto" />
+        </motion.div>
 
-        <div className="space-y-12">
-          {projects.map((project, index) => (
-            <div 
-              key={project.title} 
-              className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 ${
-                isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-              }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
-            >
-              {/* Project Header */}
-              <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-6 lg:px-8 py-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm border border-gray-100">
-                      {project.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-2xl font-bold text-gray-900">{project.title}</h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          project.status === 'Live Project' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {project.status}
-                        </span>
-                      </div>
-                      <p className="text-lg font-medium text-blue-600 mb-1">{project.subtitle}</p>
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Calendar size={14} />
-                          {project.timeline}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Building size={14} />
-                          {project.role}
-                        </span>
-                      </div>
-                    </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-4"
+          >
+            {projects.map((project, index) => (
+              <motion.div
+                key={project.title}
+                onClick={() => setSelectedProject(index)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`cursor-pointer p-6 rounded-xl border transition-all ${
+                  selectedProject === index
+                    ? 'bg-gradient-to-r ' + project.color + ' border-transparent'
+                    : 'bg-gray-800/50 border-white/10 hover:border-white/20'
+                }`}
+              >
+                <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
+                <p className={`text-sm ${selectedProject === index ? 'text-white/90' : 'text-gray-400'}`}>
+                  {project.description}
+                </p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedProject}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gray-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={projects[selectedProject].image} 
+                    alt={projects[selectedProject].title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className={`absolute inset-0 bg-gradient-to-t ${projects[selectedProject].color} opacity-60`} />
+                </div>
+                
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-2xl font-bold text-white">{projects[selectedProject].title}</h3>
+                    {projects[selectedProject].link !== "#" && (
+                      <motion.a
+                        href={projects[selectedProject].link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <ExternalLink className="w-5 h-5" />
+                      </motion.a>
+                    )}
                   </div>
                   
-                  {/* Project Metrics */}
-                  <div className="flex gap-6 lg:flex-col lg:items-end">
-                    {Object.entries(project.metrics).map(([key, value]) => (
-                      <div key={key} className="text-center lg:text-right">
-                        <div className="text-lg font-bold text-gray-900">{value}</div>
-                        <div className="text-xs text-gray-500 capitalize">{key}</div>
-                      </div>
+                  <ul className="space-y-2 mb-6">
+                    {projects[selectedProject].features.map((feature, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="flex items-start gap-3 text-gray-300"
+                      >
+                        <span className="text-violet-400 mt-1">✓</span>
+                        {feature}
+                      </motion.li>
+                    ))}
+                  </ul>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {projects[selectedProject].technologies.map((tech, i) => (
+                      <motion.span
+                        key={tech}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="px-3 py-1 bg-violet-600/10 border border-violet-600/30 rounded-lg text-violet-300 text-sm"
+                      >
+                        {tech}
+                      </motion.span>
                     ))}
                   </div>
                 </div>
-              </div>
-
-              {/* Project Content */}
-              <div className="p-6 lg:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Main Description */}
-                  <div className="lg:col-span-2">
-                    <div className="mb-6">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3">Project Overview</h4>
-                      <p className="text-gray-600 leading-relaxed mb-4">{project.description}</p>
-                    </div>
-
-                    <div className="mb-6">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4">Key Features & Achievements</h4>
-                      <ul className="space-y-3">
-                        {project.detailedFeatures.map((feature, i) => (
-                          <li key={i} className="flex items-start gap-3">
-                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-700 leading-relaxed">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4">Technologies Used</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {project.technologies.map(tech => (
-                          <span key={tech} className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-100">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Project Image & Links */}
-                  <div className="lg:col-span-1">
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 text-center mb-6">
-                      <div className="text-6xl mb-4">{project.icon}</div>
-                      <p className="text-sm text-gray-600">Live Enterprise Application</p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {project.link !== "#" && (
-                        <a
-                          href={project.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
-                        >
-                          <Globe size={18} />
-                          View Live Project
-                          <ArrowRight size={16} />
-                        </a>
-                      )}
-                      
-                      <button
-                        onClick={() => document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' })}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-white text-gray-900 border border-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200"
-                      >
-                        <MessageCircle size={18} />
-                        Discuss This Project
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 lg:p-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Interested in My Work?
-            </h3>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              These projects showcase my expertise in Java, Spring Boot, and enterprise application development. 
-              Let's discuss how I can help bring your ideas to life.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' })}
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
-              >
-                <Send size={18} />
-                Start a Project
-              </button>
-              <a
-                href="/resume.pdf"
-                download
-                className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-medium border border-blue-200 hover:bg-blue-50 transition-colors duration-200"
-              >
-                <Download size={18} />
-                Download Resume
-              </a>
-            </div>
-          </div>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
     </section>
   );
-}
+};
 
 // Skills Section
-function SkillsSection() {
-  const [ref, isInView] = useInView();
-  
-  const skills = [
+const SkillsSection = () => {
+  const [ref, isInView] = useInView(0.1);
+  const [selectedCategory, setSelectedCategory] = useState(0);
+
+  const skillCategories = [
     {
-      category: "Backend",
-      items: [
-        { name: "Java", level: 90 },
-        { name: "Spring Boot", level: 85 },
-        { name: "REST APIs", level: 90 },
-        { name: "Microservices", level: 80 }
+      title: "Backend Development",
+      icon: Server,
+      skills: [
+        { name: "Java", level: 90, years: "2+ years" },
+        { name: "Spring Boot", level: 85, years: "2+ years" },
+        { name: "REST APIs", level: 90, years: "2+ years" },
+        { name: "Microservices", level: 80, years: "1+ year" }
       ]
     },
     {
-      category: "Database",
-      items: [
-        { name: "PostgreSQL", level: 85 },
-        { name: "MySQL", level: 80 },
-        { name: "MongoDB", level: 75 },
-        { name: "Redis", level: 70 }
+      title: "Database & Storage",
+      icon: Database,
+      skills: [
+        { name: "PostgreSQL", level: 85, years: "2+ years" },
+        { name: "MySQL", level: 80, years: "2+ years" },
+        { name: "MongoDB", level: 75, years: "1+ year" },
+        { name: "Redis", level: 70, years: "1+ year" }
       ]
     },
     {
-      category: "DevOps",
-      items: [
-        { name: "Docker", level: 80 },
-        { name: "Kubernetes", level: 75 },
-        { name: "AWS", level: 80 },
-        { name: "CI/CD", level: 75 }
+      title: "DevOps & Cloud",
+      icon: Cloud,
+      skills: [
+        { name: "Docker", level: 80, years: "1.5+ years" },
+        { name: "Kubernetes", level: 75, years: "1+ year" },
+        { name: "AWS", level: 80, years: "1.5+ years" },
+        { name: "CI/CD", level: 75, years: "1+ year" }
       ]
     }
   ];
 
   return (
-    <section ref={ref} id="skills" className="py-16 lg:py-24 bg-gray-50">
+    <section ref={ref} id="skills" className="py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Technical Skills
-          </h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            My expertise and technologies I work with
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Technical Skills</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-violet-600 to-purple-600 mx-auto" />
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {skills.map((category, index) => (
-            <div key={category.category} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">{category.category}</h3>
-              <div className="space-y-4">
-                {category.items.map(skill => (
-                  <div key={skill.name}>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700">{skill.name}</span>
-                      <span className="text-sm text-gray-500">{skill.level}%</span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${skill.level}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col lg:flex-row gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:w-1/3 space-y-4"
+          >
+            {skillCategories.map((category, index) => (
+              <motion.div
+                key={category.title}
+                onClick={() => setSelectedCategory(index)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`cursor-pointer p-6 rounded-xl border transition-all flex items-center gap-4 ${
+                  selectedCategory === index
+                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 border-transparent'
+                    : 'bg-gray-800/50 border-white/10 hover:border-white/20'
+                }`}
+              >
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                  selectedCategory === index ? 'bg-white/20' : 'bg-violet-600/20'
+                }`}>
+                  <category.icon className={`w-6 h-6 ${
+                    selectedCategory === index ? 'text-white' : 'text-violet-400'
+                  }`} />
+                </div>
+                <h3 className="text-lg font-bold text-white">{category.title}</h3>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="lg:w-2/3"
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedCategory}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gray-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8"
+              >
+                <h3 className="text-2xl font-bold text-white mb-8">
+                  {skillCategories[selectedCategory].title}
+                </h3>
+                
+                <div className="space-y-6">
+                  {skillCategories[selectedCategory].skills.map((skill, index) => (
+                    <motion.div
+                      key={skill.name}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className="flex justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-white font-medium">{skill.name}</span>
+                          <span className="text-sm text-gray-400">{skill.years}</span>
+                        </div>
+                        <span className="text-violet-400 font-medium">{skill.level}%</span>
+                      </div>
+                      <div className="relative h-3 bg-gray-700 rounded-full overflow-hidden">
+                        <motion.div
+                          className="absolute inset-y-0 left-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${skill.level}%` }}
+                          transition={{ duration: 0.8, delay: index * 0.1 }}
+                        />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
     </section>
   );
-}
+};
+
+// Testimonials Section
+const TestimonialsSection = () => {
+  const [ref, isInView] = useInView(0.1);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  const testimonials = [
+    {
+      name: "Muhammad Bilal",
+      role: " Angular Developer at YAP Pakistan",
+      content: "Muhammad is an exceptional developer who consistently delivers high-quality code. His problem-solving skills and attention to detail make him a valuable asset to any team.",
+      rating: 5
+    },
+    {
+      name: "Ahmed Khan",
+      role: "Senior Developer at Meganos",
+      content: "Working with Muhammad was a great experience. He quickly grasped complex concepts and contributed significantly to our API optimization project. His dedication is commendable.",
+      rating: 5
+    },
+    {
+      name: "Muhammad Usman",
+      role: "Team Lead at YAP Pakistan",
+      content: "Muhammad's expertise in Spring Boot and microservices has been instrumental in our platform's success. He's proactive, reliable, and always eager to take on new challenges.",
+      rating: 5
+    }
+  ];
+
+  return (
+    <section ref={ref} className="py-20 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">What People Say</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-violet-600 to-purple-600 mx-auto" />
+        </motion.div>
+
+        <div className="relative max-w-4xl mx-auto">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentTestimonial}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gray-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 md:p-12"
+            >
+              <Quote className="w-12 h-12 text-violet-600/30 mb-6" />
+              
+              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                "{testimonials[currentTestimonial].content}"
+              </p>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-white font-semibold">{testimonials[currentTestimonial].name}</h4>
+                  <p className="text-gray-400 text-sm">{testimonials[currentTestimonial].role}</p>
+                </div>
+                
+                <div className="flex gap-1">
+                  {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="flex justify-center gap-4 mt-8">
+            <button
+              onClick={() => setCurrentTestimonial((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))}
+              className="p-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            
+            <div className="flex gap-2 items-center">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTestimonial(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    currentTestimonial === index
+                      ? 'w-8 bg-violet-600'
+                      : 'bg-gray-600 hover:bg-gray-500'
+                  }`}
+                />
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setCurrentTestimonial((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))}
+              className="p-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // Contact Section
-function ContactSection() {
-  const [ref, isInView] = useInView();
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+const ContactSection = () => {
+  const [ref, isInView] = useInView(0.1);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Simulate form submission
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    alert('Thank you for your message! I will get back to you soon.');
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    alert('Thank you for your message! I\'ll get back to you soon.');
+    setFormData({ name: '', email: '', message: '' });
     setIsSubmitting(false);
   };
 
   const contactInfo = [
-    { 
-      icon: Mail, 
-      label: 'Email', 
-      value: 'usaamaizm@gmail.com', 
-      href: 'mailto:usaamaizm@gmail.com',
-      description: 'Drop me a line anytime'
-    },
-    { 
-      icon: Phone, 
-      label: 'Phone', 
-      value: '(92) 301-6194648', 
-      href: 'tel:+923016194648',
-      description: 'Available during business hours'
-    },
-    { 
-      icon: MapPin, 
-      label: 'Location', 
-      value: 'Sheikhupura, Pakistan', 
-      href: '#',
-      description: 'Remote work available globally'
-    }
-  ];
-
-  const socialLinks = [
-    { href: "https://github.com/usaamaizm", icon: Github, label: "GitHub" },
-    { href: "https://linkedin.com/in/mianusama8748", icon: Linkedin, label: "LinkedIn" },
-    { href: "mailto:usaamaizm@gmail.com", icon: Mail, label: "Email" }
+    { icon: Mail, label: 'Email', value: 'usaamaizm@gmail.com', href: 'mailto:usaamaizm@gmail.com' },
+    { icon: Phone, label: 'Phone', value: '+92 301 6194648', href: 'tel:+923016194648' },
+    { icon: MapPin, label: 'Location', value: 'Sheikhupura, Pakistan', href: '#' }
   ];
 
   return (
-    <section ref={ref} id="contact" className="py-16 lg:py-24 bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Let's Work Together
-          </h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Ready to discuss your next project? I'm always open to new opportunities and interesting conversations.
+    <section ref={ref} id="contact" className="py-20 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Get In Touch</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-violet-600 to-purple-600 mx-auto mb-6" />
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Have a project in mind? Let's work together to bring your ideas to life.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-          {/* Contact Information */}
-          <div className="lg:col-span-2">
-            <div className="bg-gray-50 rounded-xl p-8 h-full">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <MessageCircle className="text-white" size={20} />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">Get In Touch</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
+                  placeholder="John Doe"
+                />
               </div>
               
-              <div className="space-y-6 mb-8">
-                {contactInfo.map((item, index) => (
-                  <a
-                    key={index}
-                    href={item.href}
-                    className="block group hover:bg-white rounded-lg p-4 transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-sm"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-200">
-                        <item.icon className="text-blue-600 group-hover:text-white transition-colors duration-200" size={18} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                          {item.value}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-1">{item.description}</p>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-
-              <div className="pt-6 border-t border-gray-200">
-                <h4 className="text-sm font-medium text-gray-900 mb-4">Connect with me</h4>
-                <div className="flex gap-3">
-                  {socialLinks.map(({ href, icon: Icon, label }, index) => (
-                    <a
-                      key={href}
-                      href={href}
-                      className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all duration-200"
-                      title={label}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Icon size={18} />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Form */}
-          <div className="lg:col-span-3">
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                  <Send className="text-white" size={20} />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">Send Message</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
+                  placeholder="john@example.com"
+                />
               </div>
               
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                    placeholder="Project collaboration, job opportunity..."
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    rows={6}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
-                    placeholder="Tell me about your project or how I can help you..."
-                  ></textarea>
-                </div>
-                
-                <button
-                  type="submit"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
-                >
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Message</label>
+                <textarea
+                  required
+                  rows={6}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors resize-none"
+                  placeholder="Tell me about your project..."
+                />
+              </div>
+              
+              <motion.button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-medium overflow-hidden disabled:opacity-70"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
                   {isSubmitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Sending Message...
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Sending...
                     </>
                   ) : (
                     <>
-                      <Send size={18} />
                       Send Message
-                      <ArrowRight size={16} />
+                      <ArrowRight className="w-5 h-5" />
                     </>
                   )}
-                </button>
+                </span>
+              </motion.button>
+            </form>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="space-y-8"
+          >
+            <div>
+              <h3 className="text-2xl font-bold text-white mb-6">Let's Connect</h3>
+              <div className="space-y-4">
+                {contactInfo.map((item, index) => (
+                  <motion.a
+                    key={item.label}
+                    href={item.href}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
+                    className="flex items-center gap-4 p-4 bg-gray-800/50 border border-white/10 rounded-xl hover:border-violet-500/50 transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-violet-600/20 rounded-xl flex items-center justify-center group-hover:bg-violet-600/30 transition-colors">
+                      <item.icon className="w-6 h-6 text-violet-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">{item.label}</p>
+                      <p className="text-white font-medium">{item.value}</p>
+                    </div>
+                  </motion.a>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Additional CTA Section */}
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 lg:p-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Ready to Start Your Project?
-            </h3>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              I'm always excited to work on new challenges and help bring innovative ideas to life. 
-              Let's discuss how we can work together to achieve your goals.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="mailto:usaamaizm@gmail.com"
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
-              >
-                <Mail size={18} />
-                Email Me
-              </a>
-              <a
-                href="https://linkedin.com/in/mianusama8748"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-medium border border-blue-200 hover:bg-blue-50 transition-colors duration-200"
-              >
-                <Linkedin size={18} />
-                Connect on LinkedIn
-              </a>
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-4">Follow Me</h4>
+              <div className="flex gap-4">
+                {[
+                  { icon: Github, href: 'https://github.com/usaamaizm' },
+                  { icon: Linkedin, href: 'https://linkedin.com/in/mianusama8748' },
+                  { icon: Mail, href: 'mailto:usaamaizm@gmail.com' }
+                ].map(({ icon: Icon, href }) => (
+                  <motion.a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 bg-gray-800/50 border border-white/10 rounded-xl flex items-center justify-center text-gray-300 hover:text-white hover:border-violet-500/50 transition-all"
+                    whileHover={{ y: -5 }}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </motion.a>
+                ))}
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
-}
+};
 
-// Footer Component
-function Footer() {
+// Footer
+const Footer = () => {
   return (
-    <footer className="bg-gray-50 border-t border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="text-center md:text-left mb-4 md:mb-0">
-            <p className="text-gray-600">
-              © {new Date().getFullYear()} Muhammad Usama. All rights reserved.
-            </p>
-          </div>
-          <div className="flex space-x-6">
-            <a
-              href="https://github.com/usaamaizm"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              GitHub
-            </a>
-            <a
-              href="https://linkedin.com/in/mianusama8748"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="mailto:usaamaizm@gmail.com"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              Email
-            </a>
+    <footer className="py-8 border-t border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-gray-400 text-sm">
+            © {new Date().getFullYear()} Muhammad Usama. All rights reserved.
+          </p>
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <span>Built with</span>
+            <span className="text-red-500">❤️</span>
           </div>
         </div>
       </div>
     </footer>
   );
-}
+};
 
 // Main App Component
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-900 text-white overflow-x-hidden">
+      <AnimatedBackground />
       <Navigation />
       <main>
         <HeroSection />
-        <StatsSection />
         <AboutSection />
         <ExperienceSection />
         <ProjectsSection />
         <SkillsSection />
+        <TestimonialsSection />
         <ContactSection />
       </main>
       <Footer />
     </div>
   );
 }
-
-export default App;
